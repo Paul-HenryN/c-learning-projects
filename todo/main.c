@@ -12,6 +12,7 @@ struct Task
 
 void printAllTasks(struct Task *pTasks, int tasksCount);
 void addTask(struct Task **pTasks, char description[MAX_DESCRIPTION_LENGTH], int tasksCount);
+void toggleTask(struct Task *pTasks, int taskIndex, int tasksCount);
 
 int main()
 {
@@ -32,7 +33,7 @@ int main()
             break;
         }
 
-        if (sscanf(input, "%s %[^\n]", action, arg) != 2)
+        if (sscanf(input, "%s %[^\n]", action, arg) < 1)
         {
             printf("Invalid input.\n");
             continue;
@@ -42,14 +43,30 @@ int main()
         {
             addTask(&pTasks, arg, tasksCount);
             tasksCount++;
+            printAllTasks(pTasks, tasksCount);
+        }
+        else if (strncmp(action, "list", 4) == 0)
+        {
+            printAllTasks(pTasks, tasksCount);
+        }
+        else if (strncmp(action, "toggle", 6) == 0)
+        {
+            int taskIndex;
+
+            if (sscanf(arg, "%d", &taskIndex) != 1)
+            {
+                printf("Invalid task index: %s\n", arg);
+                continue;
+            }
+
+            toggleTask(pTasks, taskIndex, tasksCount);
+            printAllTasks(pTasks, tasksCount);
         }
         else
         {
             printf("Unsupported action: %s\n", action);
             continue;
         }
-
-        printAllTasks(pTasks, tasksCount);
     }
 
     free(pTasks);
@@ -60,6 +77,11 @@ int main()
 void printAllTasks(struct Task *pTasks, int tasksCount)
 {
     printf("\n");
+
+    if (tasksCount == 0)
+    {
+        printf("No tasks yet\n");
+    }
 
     for (int i = 0; i < tasksCount; i++)
     {
@@ -87,4 +109,17 @@ void addTask(struct Task **pTasks, char description[MAX_DESCRIPTION_LENGTH], int
     (*pTasks)[tasksCount].completed = 0;
 
     printf("Added task #%d\n", tasksCount + 1);
+}
+
+void toggleTask(struct Task *pTasks, int taskIndex, int tasksCount)
+{
+    if (taskIndex < 1 || taskIndex > tasksCount)
+    {
+        printf("Task index out of bounds: %d\n", taskIndex);
+        return;
+    }
+
+    int completed = pTasks[taskIndex - 1].completed;
+
+    pTasks[taskIndex - 1].completed = !completed;
 }
