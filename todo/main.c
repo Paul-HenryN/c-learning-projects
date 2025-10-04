@@ -13,6 +13,8 @@ typedef struct
 void printAllTasks(Task *pTasks, int tasksCount);
 void addTask(Task **pTasks, char description[MAX_DESCRIPTION_LENGTH], int tasksCount);
 void toggleTask(Task *pTasks, int taskIndex, int tasksCount);
+void checkAll(Task *pTasks, int tasksCount);
+void uncheckAll(Task *pTasks, int tasksCount);
 
 int main()
 {
@@ -60,6 +62,16 @@ int main()
             }
 
             toggleTask(pTasks, taskIndex, tasksCount);
+            printAllTasks(pTasks, tasksCount);
+        }
+        else if (strncmp(action, "check-all", 8) == 0)
+        {
+            checkAll(pTasks, tasksCount);
+            printAllTasks(pTasks, tasksCount);
+        }
+        else if (strncmp(action, "uncheck-all", 10) == 0)
+        {
+            uncheckAll(pTasks, tasksCount);
             printAllTasks(pTasks, tasksCount);
         }
         else
@@ -122,4 +134,20 @@ void toggleTask(Task *pTasks, int taskIndex, int tasksCount)
     int completed = pTasks[taskIndex - 1].completed;
 
     pTasks[taskIndex - 1].completed = !completed;
+}
+
+void checkAll(Task *pTasks, int tasksCount)
+{
+    for (int i = 0; i < tasksCount; i++)
+    {
+        pTasks[i].completed = 1;
+    }
+}
+
+void uncheckAll(Task *pTasks, int tasksCount)
+{
+    for (int i = 0; i < tasksCount; i++)
+    {
+        pTasks[i].completed = 0;
+    }
 }
