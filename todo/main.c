@@ -4,19 +4,19 @@
 
 #define MAX_DESCRIPTION_LENGTH 100
 
-struct Task
+typedef struct
 {
     char description[MAX_DESCRIPTION_LENGTH];
     int completed;
-};
+} Task;
 
-void printAllTasks(struct Task *pTasks, int tasksCount);
-void addTask(struct Task **pTasks, char description[MAX_DESCRIPTION_LENGTH], int tasksCount);
-void toggleTask(struct Task *pTasks, int taskIndex, int tasksCount);
+void printAllTasks(Task *pTasks, int tasksCount);
+void addTask(Task **pTasks, char description[MAX_DESCRIPTION_LENGTH], int tasksCount);
+void toggleTask(Task *pTasks, int taskIndex, int tasksCount);
 
 int main()
 {
-    struct Task *pTasks = NULL;
+    Task *pTasks = NULL;
     int tasksCount = 0;
     char input[200], action[10], arg[MAX_DESCRIPTION_LENGTH];
 
@@ -74,7 +74,7 @@ int main()
     return 0;
 }
 
-void printAllTasks(struct Task *pTasks, int tasksCount)
+void printAllTasks(Task *pTasks, int tasksCount)
 {
     printf("\n");
 
@@ -91,9 +91,9 @@ void printAllTasks(struct Task *pTasks, int tasksCount)
     printf("\n");
 }
 
-void addTask(struct Task **pTasks, char description[MAX_DESCRIPTION_LENGTH], int tasksCount)
+void addTask(Task **pTasks, char description[MAX_DESCRIPTION_LENGTH], int tasksCount)
 {
-    struct Task *tmpTasks = realloc(*pTasks, (tasksCount + 1) * sizeof(struct Task));
+    Task *tmpTasks = realloc(*pTasks, (tasksCount + 1) * sizeof(Task));
 
     if (tmpTasks == NULL)
     {
@@ -111,7 +111,7 @@ void addTask(struct Task **pTasks, char description[MAX_DESCRIPTION_LENGTH], int
     printf("Added task #%d\n", tasksCount + 1);
 }
 
-void toggleTask(struct Task *pTasks, int taskIndex, int tasksCount)
+void toggleTask(Task *pTasks, int taskIndex, int tasksCount)
 {
     if (taskIndex < 1 || taskIndex > tasksCount)
     {
