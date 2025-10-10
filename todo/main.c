@@ -3,6 +3,7 @@
 #include <string.h>
 
 #define MAX_DESCRIPTION_LENGTH 100
+#define FILENAME "todo.txt"
 
 typedef struct
 {
@@ -15,12 +16,16 @@ void addTask(Task **pTasks, char description[MAX_DESCRIPTION_LENGTH], int tasksC
 void toggleTask(Task *pTasks, int taskIndex, int tasksCount);
 void checkAll(Task *pTasks, int tasksCount);
 void uncheckAll(Task *pTasks, int tasksCount);
+void saveTasks(Task *pTasks, int tasksCount);
+void readTasks(Task **pTasks, int *tasksCount);
 
 int main()
 {
     Task *pTasks = NULL;
     int tasksCount = 0;
     char input[200], action[10], arg[MAX_DESCRIPTION_LENGTH];
+
+    readTasks(&pTasks, &tasksCount);
 
     while (1)
     {
@@ -45,6 +50,7 @@ int main()
         {
             addTask(&pTasks, arg, tasksCount);
             tasksCount++;
+            saveTasks(pTasks, tasksCount);
             printAllTasks(pTasks, tasksCount);
         }
         else if (strncmp(action, "list", 4) == 0)
@@ -62,16 +68,19 @@ int main()
             }
 
             toggleTask(pTasks, taskIndex, tasksCount);
+            saveTasks(pTasks, tasksCount);
             printAllTasks(pTasks, tasksCount);
         }
         else if (strncmp(action, "check-all", 8) == 0)
         {
             checkAll(pTasks, tasksCount);
+            saveTasks(pTasks, tasksCount);
             printAllTasks(pTasks, tasksCount);
         }
         else if (strncmp(action, "uncheck-all", 10) == 0)
         {
             uncheckAll(pTasks, tasksCount);
+            saveTasks(pTasks, tasksCount);
             printAllTasks(pTasks, tasksCount);
         }
         else
@@ -92,7 +101,7 @@ void printAllTasks(Task *pTasks, int tasksCount)
 
     if (tasksCount == 0)
     {
-        printf("No tasks yet\n");
+        printf("No task yet.\n");
     }
 
     for (int i = 0; i < tasksCount; i++)
@@ -150,4 +159,59 @@ void uncheckAll(Task *pTasks, int tasksCount)
     {
         pTasks[i].completed = 0;
     }
+}
+
+void saveTasks(Task *pTasks, int tasksCount)
+{
+    FILE *pFile = fopen(FILENAME, "w");
+
+    if (pFile == NULL)
+    {
+        printf("Failed to create / open file: %s", FILENAME);
+        return;
+    }
+
+    for (int i = 0; i < tasksCount; i++)
+    {
+        Task task = pTasks[i];
+        fprintf(pFile, "%d %s\n", task.completed, task.description);
+    }
+
+    fclose(pFile);
+}
+
+void readTasks(Task **pTasks, int *tasksCount)
+{
+    FILE *pFile = fopen(FILENAME, "r");
+    char buffer[200];
+
+    if (pFile == NULL)
+        return;
+
+    while (fgets(buffer, sizeof(buffer), pFile))
+    {
+        char description[MAX_DESCRIPTION_LENGTH];
+        int completed;
+
+        if (sscanf(buffer, "%d %[^\n]", &completed, description) != 2)
+            continue;
+
+        Task *tmpTasks = realloc(*pTasks, (*tasksCount + 1) * sizeof(Task));
+
+        if (tmpTasks == NULL)
+        {
+            printf("Memory reallocation failed.");
+            free(*pTasks);
+            exit(1);
+        }
+
+        *pTasks = tmpTasks;
+
+        strcpy((*pTasks)[*tasksCount].description, description);
+        (*pTasks)[*tasksCount].completed = completed;
+
+        *tasksCount = *tasksCount + 1;
+    }
+
+    fclose(pFile);
 }
